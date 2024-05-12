@@ -1,0 +1,84 @@
+- name: Installation of Nagios
+  apt:
+    name:
+      - nagios4
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Installation of prometheus
+  apt:
+    name:
+      - prometheus
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add Elasticsearch APT GPG Key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add Elasticsearch APT Repository for Elasticsearch 
+  apt_repository:
+    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+    state: present
+    filename: 'elastic-7.x'
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install Elasticsearch
+  apt:
+    name: elasticsearch
+    state: present
+  when: ansible_distribution == "Ubuntu"
+  notify:
+    - Start Elasticsearch service
+  
+- name: Install Kibana
+  apt:
+    name: kibana
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+  notify:
+    - Start and enable Kibana service
+
+- name: Start Elasticsearch service
+  shell: service elasticsearch start
+  become: true
+  when: ansible_distribution == "Ubuntu" and ansible_pkg_mgr == "apt"
+
+- name: Enable Elasticsearch service
+  shell: systemctl enable elasticsearch
+  become: true
+  when: ansible_distribution == "Ubuntu" and ansible_pkg_mgr == "apt" 
+
+- name: Start and enable Kibana service
+  shell: service kibana start
+  become: true
+  when: ansible_distribution == "Ubuntu" and ansible_pkg_mgr == "apt"
+
+- name: Enable Kibana service
+  shell: systemctl enable kibana
+  become: true
+  when: ansible_distribution == "Ubuntu" and ansible_pkg_mgr == "apt"
+  
+- name: Installation of Suricata
+  apt:
+    name: suricata
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install syslog-ng
+  apt:
+    name: syslog-ng
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
